@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>ডুপ্লিকেট চেকার (৩ টেবিল)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f3;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px #ccc;
+        }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #checkBtn { background: #4CAF50; color: #fff; }
+        #clearBtn { background: #e53935; color: #fff; }
+        .tables {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+        .tbl-box {
+            flex: 1 1 330px;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 6px #ccc;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th,td {
+            border: 1px solid #ccc;
+            padding: 6px;
+            text-align: center;
+        }
+        th { background: #ddd; }
+        .duplicate-row {
+            background: #e53935;
+            color: #fff;
+        }
+        .empty {
+            text-align: center;
+            padding: 8px;
+            color: #777;
+        }
+        h3 { text-align:center; margin-bottom:6px; }
+        .count {
+            text-align:center;
+            font-size:15px;
+            margin-bottom:10px;
+            color:#0d47a1;
+            font-weight:bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align:center;">📌 ডুপ্লিকেট নাম্বার চেকার</h2>
+
+    <textarea id="input" placeholder="প্রতি লাইনে ১টি করে নাম্বার লিখুন..."></textarea>
+    <button id="checkBtn" onclick="runChecker()">Check</button>
+    <button id="clearBtn" onclick="clearAll()">Clear</button>
+
+    <div class="tables">
+
+        <!-- টেবিল ১: সব নাম্বার -->
+        <div class="tbl-box">
+            <h3>১) সব নাম্বার</h3>
+            <div class="count" id="count-all">মোট: 0</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>নাম্বার</th>
+                        <th>স্ট্যাটাস</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-all">
+                    <tr><td colspan="3" class="empty">কোনো ডাটা নেই</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- টেবিল ২: ডুপ্লিকেট -->
+        <div class="tbl-box">
+            <h3>২) ডুপ্লিকেট নাম্বার</h3>
+            <div class="count" id="count-dup">ডুপ্লিকেট সংখ্যা: 0</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>নাম্বার</th>
+                        <th>বার</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-dup">
+                    <tr><td colspan="3" class="empty">কোনো ডুপ্লিকেট নেই</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- টেবিল ৩: ভালো (ইউনিক) -->
+        <div class="tbl-box">
+            <h3>৩) ভালো / ইউনিক নাম্বার</h3>
+            <div class="count" id="count-uniq">ভালো সংখ্যা: 0</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ক্রমিক</th>
+                        <th>নাম্বার</th>
+                    </tr>
+                </thead>
+                <tbody id="tbl-uniq">
+                    <tr><td colspan="2" class="empty">কোনো ডাটা নেই</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function runChecker() {
+    let lines = document.getElementById("input").value.split(/\n+/)
+        .map(v => v.trim())
+        .filter(v => v !== "");
+
+    let allBox = document.getElementById("tbl-all");
+    let dupBox = document.getElementById("tbl-dup");
+    let uniqBox = document.getElementById("tbl-uniq");
+
+    allBox.innerHTML = "";
+    dupBox.innerHTML = "";
+    uniqBox.innerHTML = "";
+
+    if (lines.length === 0) {
+        allBox.innerHTML = '<tr><td colspan="3" class="empty">কোনো ডাটা নেই</td></tr>';
+        dupBox.innerHTML = '<tr><td colspan="3" class="empty">কোনো ডুপ্লিকেট নেই</td></tr>';
+        uniqBox.innerHTML = '<tr><td colspan="2" class="empty">কোনো ডাটা নেই</td></tr>';
+        return;
+    }
+
+    let count = {};
+    lines.forEach(v => count[v] = (count[v] || 0) + 1);
+
+    let duplicates = Object.keys(count).filter(k => count[k] > 1);
+    let uniques = Object.keys(count).filter(k => count[k] === 1);
+
+    document.getElementById("count-all").innerText = "মোট: " + lines.length;
+    document.getElementById("count-dup").innerText = "ডুপ্লিকেট সংখ্যা: " + duplicates.length;
+    document.getElementById("count-uniq").innerText = "ভালো সংখ্যা: " + uniques.length;
+
+    lines.forEach((v, i) => {
+        let tr = document.createElement("tr");
+        if (count[v] > 1) tr.classList.add("duplicate-row");
+        tr.innerHTML = `<td>${i+1}</td><td>${v}</td><td>${count[v] > 1 ? "ডুপ্লিকেট" : "ভালো"}</td>`;
+        allBox.appendChild(tr);
+    });
+
+    if (duplicates.length === 0) {
+        dupBox.innerHTML = '<tr><td colspan="3" class="empty">কোনো ডুপ্লিকেট নেই</td></tr>';
+    } else {
+        duplicates.forEach((v,i)=>{
+            let tr = document.createElement("tr");
+            tr.innerHTML = `<td>${i+1}</td><td>${v}</td><td>${count[v]}</td>`;
+            dupBox.appendChild(tr);
+        });
+    }
+
+    if (uniques.length === 0) {
+        uniqBox.innerHTML = '<tr><td colspan="2" class="empty">কোনো ভালো নাম্বার নেই</td></tr>';
+    } else {
+        uniques.forEach((v,i)=>{
+            let tr = document.createElement("tr");
+            tr.innerHTML = `<td>${i+1}</td><td>${v}</td>`;
+            uniqBox.appendChild(tr);
+        });
+    }
+}
+
+function clearAll() {
+    document.getElementById("input").value = "";
+    document.getElementById("tbl-all").innerHTML =
+        '<tr><td colspan="3" class="empty">কোনো ডাটা নেই</td></tr>';
+    document.getElementById("tbl-dup").innerHTML =
+        '<tr><td colspan="3" class="empty">কোনো ডুপ্লিকেট নেই</td></tr>';
+    document.getElementById("tbl-uniq").innerHTML =
+        '<tr><td colspan="2" class="empty">কোনো ডাটা নেই</td></tr>';
+    document.getElementById("count-all").innerText = "মোট: 0";
+    document.getElementById("count-dup").innerText = "ডুপ্লিকেট সংখ্যা: 0";
+    document.getElementById("count-uniq").innerText = "ভালো সংখ্যা: 0";
+}
+</script>
+
+</body>
+</html>
